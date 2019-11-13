@@ -52,7 +52,7 @@ class VoiceData(Dataset):
         self.gender_codec.fit(df['gender'].values)
         self.accent_codec.fit(df['accent'].values)
         
-        self.samples = df.values
+        self.samples = df.dropna().values
         
     def __len__(self):
         """

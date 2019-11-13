@@ -93,7 +93,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     Path_Wav = args.clippath
     Path_Meta = args.meta
-    dataset = VoiceData(Path_Wav,Path_Meta+'Test.tsv')
+    dataset = VoiceData(Path_Wav,Path_Meta+'test.tsv')
     
     dataloaderTest = DataLoader(dataset,batch_size=1,shuffle=True, num_workers=2)
     iterator = iter(dataloaderTest)

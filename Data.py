@@ -87,8 +87,8 @@ class VoiceData(Dataset):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Test DataLoader')
-    parser.add_argument("--clippath", type=str, default = '../data/clip/')
-    parser.add_argument("--meta", type=str, default = '../data/')
+    parser.add_argument("--clippath", type=str, default = 'data/clip/')
+    parser.add_argument("--meta", type=str, default = 'data/')
     
     args = parser.parse_args()
     Path_Wav = args.clippath

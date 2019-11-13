@@ -49,8 +49,8 @@ class VoiceData(Dataset):
         """
         usecols = ['path','sentence','age','gender','accent']
         df = metaDF[usecols]
-        self.gender_codec.fit(df['gender'].values)
-        self.accent_codec.fit(df['accent'].values)
+        self.gender_codec.fit(list(df['gender'].values))
+        self.accent_codec.fit(list(df['accent'].values))
         
         self.samples = df.dropna().values
         

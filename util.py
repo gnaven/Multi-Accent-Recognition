@@ -5,8 +5,13 @@ from scipy.io import wavfile
 import scipy.signal 
 import sys
 from matplotlib import pyplot as plt
+import librosa
 
 def wavread(filepath):
+    if '.mp3' in filepath:
+        return mp3read(filepath)
+    
+    
     fs, x = wavfile.read(filepath)    
     if (len(x.shape)) == 1:
         x = x.reshape(-1,1)
@@ -20,6 +25,11 @@ def wavread(filepath):
 def wavwrite(filepath, x, fs):
     wavfile.write(filepath, fs, x)
 
+def mp3read(filepath):
+    y, sr = librosa.load(filepath)
+    if (len(y.shape)) == 1:
+        y = y.reshape(-1,1)    
+    return y,sr
 
 def stft_real(x, blockSize, hopSize, window='hamming'):
     # print(x.shape)

@@ -68,7 +68,7 @@ class VoiceData(Dataset):
         sample from the dataset
         """
         wavX, Fs = util.wavread(self.wavPath+self.samples[index][0])
-        t_gender,t_accent = self.one_hot_sample(self.samples[index][3], self.samples[index][4])
+        t_gender,t_accent = self.one_hot_sample(self.samples[index][2], self.samples[index][3])
         #t_age = torch.tensor(normalize(self.samples[index][2]))
         
         return wavX, Fs, t_gender,t_accent
@@ -100,7 +100,8 @@ def collate_fn(batch):
 
         resultBatch[key]= tmp
     return resultBatch
-    
+
+ 
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Test DataLoader')
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     Path_Meta = args.meta
     dataset = VoiceData(Path_Wav,Path_Meta+'test.tsv')
     
-    dataloaderTest = DataLoader(dataset,batch_size=1,shuffle=True, num_workers=1)
+    dataloaderTest = DataLoader(dataset,batch_size=1,shuffle=True, num_workers=4)
     iterator = iter(dataloaderTest)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     with trange(len(dataloaderTest)) as t:

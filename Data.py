@@ -67,15 +67,20 @@ class VoiceData(Dataset):
         given a particular index it will be able to return a 
         sample from the dataset
         """
+        blockSize = 4096
+        hopSize = 2048
+        
         wavX, Fs = util.wavread(self.wavPath+self.samples[index][0])
         t_gender,t_accent = self.one_hot_sample(self.samples[index][2], self.samples[index][3])
         #t_age = torch.tensor(normalize(self.samples[index][2]))
+        specWav = util.stft_real(wavX,blockSize=blockSize,hopSize=hopSize)
         
-        return wavX, Fs, t_gender,t_accent
+        return specWav, Fs, t_gender,t_accent
     
     def one_hot_encode(self,codec,value):
         value_index = codec.transform(value)
         t_value = torch.eye(len(codec.classes_))[value_index]
+        
         return t_value
         
     def one_hot_sample(self,gender,accent):
@@ -115,7 +120,9 @@ if __name__ == "__main__":
     
     dataloaderTest = DataLoader(dataset,batch_size=1,shuffle=True, num_workers=4)
     iterator = iter(dataloaderTest)
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     with trange(len(dataloaderTest)) as t:
         
         for idx in t:
@@ -129,8 +136,8 @@ if __name__ == "__main__":
             t_gender = t_gender.to(device)
             t_accent = t_accent.to(device)
             
-
-            print(t_accent)
             
+            print(t_accent)
+            print(wavX.shape)
             if idx >2:
                 break

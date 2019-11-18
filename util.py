@@ -37,10 +37,11 @@ def stft_real(x, blockSize, hopSize, window='hamming'):
         x,
             window = window,
             nperseg=blockSize,
-            noverlap = blockSize-hopSize)
-            #return_onesided=True)
+            noverlap = blockSize-hopSize,
+            return_onesided=True)
     # print(S.shape)
-    return S
+    magnitude = np.abs(S).astype(np.float32)
+    return magnitude
 
 def istft_real(S, blockSize, hopSize, window='hamming'):
     _,x = scipy.signal.istft(S, window= window, noverlap= blockSize- hopSize, input_onesided=True)
@@ -50,8 +51,9 @@ def istft_real(S, blockSize, hopSize, window='hamming'):
 if __name__ == "__main__":
     
     blockSize = 400
-    hopSize = 21
+    hopSize = 200
     
     wavX, Fs = wavread('data/clips/common_voice_en_18404214.mp3')
     specWav = stft_real(wavX,blockSize=blockSize,hopSize=hopSize)
+    print(specWav)
     

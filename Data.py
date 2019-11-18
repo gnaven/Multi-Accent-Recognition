@@ -67,8 +67,8 @@ class VoiceData(Dataset):
         given a particular index it will be able to return a 
         sample from the dataset
         """
-        blockSize = 4096
-        hopSize = 2048
+        blockSize = 400
+        hopSize = 200
         
         wavX, Fs = util.wavread(self.wavPath+self.samples[index][0])
         t_gender,t_accent = self.one_hot_sample(self.samples[index][2], self.samples[index][3])

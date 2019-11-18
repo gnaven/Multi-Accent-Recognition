@@ -27,8 +27,8 @@ def wavwrite(filepath, x, fs):
 
 def mp3read(filepath):
     y, sr = librosa.load(filepath)
-    if (len(y.shape)) == 1:
-        y = y.reshape(-1,1)    
+    #if (len(y.shape)) == 1:
+        #y = y.reshape(-1,1)    
     return y,sr
 
 def stft_real(x, blockSize, hopSize, window='hamming'):
@@ -37,11 +37,21 @@ def stft_real(x, blockSize, hopSize, window='hamming'):
         x,
             window = window,
             nperseg=blockSize,
-            noverlap = blockSize-hopSize,
-            return_onesided=True)
+            noverlap = blockSize-hopSize)
+            #return_onesided=True)
     # print(S.shape)
     return S
 
 def istft_real(S, blockSize, hopSize, window='hamming'):
     _,x = scipy.signal.istft(S, window= window, noverlap= blockSize- hopSize, input_onesided=True)
     return x
+
+
+if __name__ == "__main__":
+    
+    blockSize = 400
+    hopSize = 21
+    
+    wavX, Fs = wavread('data/clips/common_voice_en_18404214.mp3')
+    specWav = stft_real(wavX,blockSize=blockSize,hopSize=hopSize)
+    

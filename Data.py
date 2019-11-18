@@ -122,7 +122,13 @@ if __name__ == "__main__":
             
             sample =next(iterator)
             
-            wavX, Fs, t_gender,t_accent = sample.to(device) 
+            wavX, Fs, t_gender,t_accent = sample
+            
+            wavX=wavX.to(device)
+            Fs = Fs.to(device)
+            t_gender = t_gender.to(device)
+            t_accent = t_accent.to(device)
+            
 
             print(t_accent)
             

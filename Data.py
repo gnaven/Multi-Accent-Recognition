@@ -47,7 +47,7 @@ class VoiceData(Dataset):
         gender
         accent
         """
-        usecols = ['path','sentence','age','gender','accent']
+        usecols = ['path','sentence','gender','accent']
         df = metaDF[usecols]
         self.gender_codec.fit(list(df['gender'].values))
         self.accent_codec.fit(list(df['accent'].values))
@@ -58,6 +58,7 @@ class VoiceData(Dataset):
         """
         returns the length of the dataset
         """
+        
         return (len(self.samples))
         
         
@@ -68,9 +69,9 @@ class VoiceData(Dataset):
         """
         wavX, Fs = util.wavread(self.wavPath+self.samples[index][0])
         t_gender,t_accent = self.one_hot_sample(self.samples[index][3], self.samples[index][4])
-        t_age = torch.tensor(normalize(self.samples[index][2]))
+        #t_age = torch.tensor(normalize(self.samples[index][2]))
         
-        return wavX, Fs, t_age, t_gender,t_accent
+        return wavX, Fs, t_gender,t_accent
     
     def one_hot_encode(self,codec,value):
         value_index = codec.transform(value)
@@ -120,9 +121,9 @@ if __name__ == "__main__":
             
             sample =next(iterator)
             
-            wavX, Fs, t_age, t_gender,t_accent = sample.to(device) 
-            print(t_age)
-            print(t_gender)
+            wavX, Fs, t_gender,t_accent = sample.to(device) 
+
+            print(t_accent)
             
             if idx >2:
                 break

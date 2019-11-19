@@ -49,8 +49,16 @@ class VoiceData(Dataset):
         """
         usecols = ['path','sentence','gender','accent']
         df = metaDF[usecols]
+        df = df.dropna()
         self.gender_codec.fit(list(df['gender'].values))
-        self.accent_codec.fit(list(df['accent'].values))
+        
+        # only set amount of accents that can be mapped to in the dataset
+        
+        accent = ['us', 'england', 'hongkong', 'indian', 'african', 'australia',
+       'newzealand', 'canada', 'scotland', 'ireland', 'philippines',
+       'wales', 'singapore', 'malaysia', 'other']
+        
+        self.accent_codec.fit(accent)
         
         self.samples = df.dropna().values
         
@@ -86,9 +94,9 @@ class VoiceData(Dataset):
     def one_hot_sample(self,gender,accent):
         
         t_gender = self.one_hot_encode(self.gender_codec,[gender])
-        t_ccent = self.one_hot_encode(self.accent_codec,[accent])
+        t_accent = self.one_hot_encode(self.accent_codec,[accent])
         
-        return t_gender,t_ccent
+        return t_gender,t_accent
     
 def collate_fn(batch):
     nBatch = len(batch)
@@ -116,9 +124,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     Path_Wav = args.clippath
     Path_Meta = args.meta
-    dataset = VoiceData(Path_Wav,Path_Meta+'test.tsv')
+    dataset = VoiceData(Path_Wav,Path_Meta+'train.tsv')
     
-    dataloaderTest = DataLoader(dataset,batch_size=1,shuffle=True, num_workers=4)
+    dataloaderTest = DataLoader(dataset,batch_size=1,shuffle=True, num_workers=0)
     iterator = iter(dataloaderTest)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -139,5 +147,5 @@ if __name__ == "__main__":
             
             print(t_accent)
             print(wavX.shape)
-            if idx >2:
-                break
+            #if idx >2:
+                #break

@@ -54,11 +54,12 @@ class VoiceData(Dataset):
         
         # only set amount of accents that can be mapped to in the dataset
         
-        accent = ['us', 'england', 'hongkong', 'indian', 'african', 'australia',
-       'newzealand', 'canada', 'scotland', 'ireland', 'philippines',
-       'wales', 'singapore', 'malaysia', 'other']
+        accent = {'us':0, 'england':1, 'hongkong':2, 'indian':3, 'african':4, 'australia':5,
+       'newzealand':6, 'canada':7, 'scotland':8, 'ireland':9, 'philippines':10,
+       'wales':11, 'singapore':12, 'malaysia':13, 'other':14,'bermuda':15,'southatlandtic':16}
         
-        self.accent_codec.fit(accent)
+        df['accent'] = df['accent'].apply(lambda x: accent[x])
+        #self.accent_codec.fit(accent)
         
         self.samples = df.dropna().values
         
@@ -79,11 +80,14 @@ class VoiceData(Dataset):
         hopSize = 200
         
         wavX, Fs = util.wavread(self.wavPath+self.samples[index][0])
-        t_gender,t_accent = self.one_hot_sample(self.samples[index][2], self.samples[index][3])
+        t_gender = self.one_hot_sample(self.samples[index][2], self.samples[index][3])
         #t_age = torch.tensor(normalize(self.samples[index][2]))
         specWav = util.stft_real(wavX,blockSize=blockSize,hopSize=hopSize)
+
+        t_accent = self.samples[index][3]
         
-        return specWav, Fs, t_gender,t_accent
+        
+        return specWav, t_accent
     
     def one_hot_encode(self,codec,value):
         value_index = codec.transform(value)
@@ -94,25 +98,31 @@ class VoiceData(Dataset):
     def one_hot_sample(self,gender,accent):
         
         t_gender = self.one_hot_encode(self.gender_codec,[gender])
-        t_accent = self.one_hot_encode(self.accent_codec,[accent])
         
-        return t_gender,t_accent
+        #t_accent = self.one_hot_encode(self.accent_codec,[accent])
+        
+        return t_gender
     
 def collate_fn(batch):
     nBatch = len(batch)
-    resultBatch = {}
-    for key in batch[0]:
-        maxLen = batch[0][key].shape[1]
-        nWindow = batch[0][key].shape[0]
-        for i in range(nBatch):
-            maxLen = max(batch[i][key].shape[1], maxLen)
+    
+    spec = batch[0][0]
+    maxLen = spec.shape[1]
+    nWindow = spec.shape[0]
+    for i in range(nBatch):
+        spec = batch[i][0]
+        maxLen = max(spec.shape[1], maxLen)
 
-        tmp = torch.zeros(nBatch, nWindow, maxLen)
-        for i in range(nBatch):
-            tmp[i, :, :batch[i][key].shape[1]] = torch.from_numpy(batch[i][key])
-
-        resultBatch[key]= tmp
-    return resultBatch
+    tmp = torch.zeros(nBatch, nWindow, maxLen)
+    tmpLabel = torch.zeros(nBatch)
+    for i in range(nBatch):
+        spec = batch[i][0]
+        label = batch[i][1]
+        tmp[i, :, :spec.shape[1]] = torch.from_numpy(spec)
+        tmpLabel[i] = torch.tensor(int(label))
+    
+        
+    return tmp,tmpLabel.long()
 
  
 if __name__ == "__main__":
@@ -126,7 +136,7 @@ if __name__ == "__main__":
     Path_Meta = args.meta
     dataset = VoiceData(Path_Wav,Path_Meta+'train.tsv')
     
-    dataloaderTest = DataLoader(dataset,batch_size=1,shuffle=True, num_workers=0)
+    dataloaderTest = DataLoader(dataset,batch_size=2,shuffle=True, num_workers=0, collate_fn=collate_fn)
     iterator = iter(dataloaderTest)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -137,14 +147,12 @@ if __name__ == "__main__":
             
             sample =next(iterator)
             
-            wavX, Fs, t_gender,t_accent = sample
+            wavX, t_accent = sample
             
             wavX=wavX.to(device)
-            Fs = Fs.to(device)
-            t_gender = t_gender.to(device)
+      
             t_accent = t_accent.to(device)
-            
-            
+                       
             print(t_accent)
             print(wavX.shape)
             #if idx >2:

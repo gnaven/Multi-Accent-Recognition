@@ -42,6 +42,10 @@ class AccentModel(torch.nn.Module):
         self.fc1 = nn.Linear(self.hidden_dim,500)
         self.fc2 = nn.Linear(500,300)
         
+        self.h1 = nn.Linear(300,300)
+        self.h2 = nn.Linear(300,300)
+        self.h3 = nn.Linear(300,300)
+        
         self.fc3 = nn.Linear(300,100)
         self.fc4 = nn.Linear(100,output_dim)
     
@@ -82,10 +86,10 @@ class AccentModel(torch.nn.Module):
         h_1,c_1 = self.lstmCell(x[:,0,:])
         for i in range(1,seq):
             h_1,c_1 = self.lstmCell(x[:,i,:],(h_1,c_1))
-            if i%30 ==0:
+            #if i%30 ==0:
                 
-                h_1 = h_1.detach()
-                c_1 = c_1.detach()
+                #h_1 = h_1.detach()
+                #c_1 = c_1.detach()
         
         return h_1
         
@@ -98,7 +102,12 @@ class AccentModel(torch.nn.Module):
         #x = x[torch.arange(x.size(0)), x.shape[1] - 1]
         #lstm_out, hidden = self.lstm(x)
         x = F.leaky_relu(self.fc1(lstm_out))
-        h = F.leaky_relu(self.fc2(x))  
+        h = F.leaky_relu(self.fc2(x))
+        
+        h = F.leaky_relu(self.h1(h)) 
+        h = F.leaky_relu(self.h2(h)) 
+        h = F.leaky_relu(self.h3(h)) 
+        
         h = F.leaky_relu(self.fc3(h))
         logits = self.fc4(h)        
         
@@ -174,6 +183,12 @@ def train(nepochs,trainDataloader,valDataloader,learningRate):
     
     criterion = nn.CrossEntropyLoss()
     minValLoss = 10000000000000
+    if (os.path.isfile('AccentModel_feedForward_best.pt')):
+        print('..... loading model')
+        checkpoint = torch.load('AccentModel_feedForward_best.pt')
+        minValLoss = checkpoint['minValLoss']
+        model.load_state_dict(checkpoint['state_dict'])        
+        
     for epoch in range(nepochs):
         iterator = iter(trainDataloader)
         totalLoss = 0
@@ -247,4 +262,4 @@ if __name__ == "__main__":
     testDataloader = DataLoader(testDataset,batch_size=1,shuffle=True, num_workers=0,collate_fn=Data.collate_fn) 
 
     train(nepochs=50000, trainDataloader=trainDataloader, valDataloader=valDataloader, 
-          learningRate=0.001)        
+          learningRate=0.1)        

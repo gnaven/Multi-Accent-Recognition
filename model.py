@@ -101,25 +101,25 @@ class AccentModel(torch.nn.Module):
         
         #x = x[torch.arange(x.size(0)), x.shape[1] - 1]
         #lstm_out, hidden = self.lstm(x)
-        x = F.leaky_relu(self.fc1(lstm_out))
-        h = F.leaky_relu(self.fc2(x))
+        #x = F.leaky_relu(self.fc1(lstm_out))
+        #h = F.leaky_relu(self.fc2(x))
         
-        h = F.leaky_relu(self.h1(h)) 
-        h = F.leaky_relu(self.h2(h)) 
-        h = F.leaky_relu(self.h3(h)) 
+        #h = F.leaky_relu(self.h1(h)) 
+        #h = F.leaky_relu(self.h2(h)) 
+        #h = F.leaky_relu(self.h3(h)) 
         
-        h = F.leaky_relu(self.fc3(h))
-        logits = self.fc4(h)        
+        #h = F.leaky_relu(self.fc3(h))
+        #logits = self.fc4(h)        
         
         
-        #logits = self.linear(lstm_out[-1])
+        logits = self.linear(lstm_out)
         o = F.softmax(logits, dim=1)
         
         #glue the encoder and the decoder together
         #h = self.encode(x)
         #o = self.decode(h)
                         
-        return o
+        return logits
 
 #==================================================================================  
 
@@ -178,14 +178,15 @@ def train(nepochs,trainDataloader,valDataloader,learningRate):
     model.to(device) 
     
     #initialize the optimizer for paramters
-    optimizer = torch.optim.Adam(model.parameters(), lr = learningRate)
+    optimizer = torch.optim.SGD(model.parameters(), lr = learningRate)
     model.train(mode=True)    
     
     criterion = nn.CrossEntropyLoss()
     minValLoss = 10000000000000
-    if (os.path.isfile('AccentModel_feedForward_best.pt')):
+    load = True
+    if load and (os.path.isfile('AccentModel_feedForward_best.pt')):
         print('..... loading model')
-        checkpoint = torch.load('AccentModel_feedForward_best.pt')
+        checkpoint = torch.load('AccentModel_feedForward_last.pt')
         minValLoss = checkpoint['minValLoss']
         model.load_state_dict(checkpoint['state_dict'])        
         
@@ -196,7 +197,12 @@ def train(nepochs,trainDataloader,valDataloader,learningRate):
             
             for index in t:
                 try:
-                    
+                    if epoch>5:
+                        lr = learningRate*np.exp(-0.0001*epoch)
+                        optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9) 
+                        print('kearning rate ', lr)
+                        
+                        
                     sample = next(iterator)
                     
                     wavX, t_accent = sample
@@ -262,4 +268,4 @@ if __name__ == "__main__":
     testDataloader = DataLoader(testDataset,batch_size=1,shuffle=True, num_workers=0,collate_fn=Data.collate_fn) 
 
     train(nepochs=50000, trainDataloader=trainDataloader, valDataloader=valDataloader, 
-          learningRate=0.1)        
+          learningRate=0.0001)        

@@ -106,4 +106,4 @@ if __name__ == "__main__":
         Dataset = Data.VoiceData(Path_Wav,Path_Meta+'test.tsv')
         Dataloader = DataLoader(Dataset,batch_size=2,shuffle=True, num_workers=0,collate_fn=Data.collate_fn)    
     
-    loss,acc = runModel(modelName='AccentModel_LSTM_last.pt', dataloader = Dataloader, fname='DNNLayer_data.csv')
+    loss,acc = runModel(modelName='AccentModel_LSTM_best.pt', dataloader = Dataloader, fname='DNNLayer_data.csv')

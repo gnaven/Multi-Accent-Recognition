@@ -75,7 +75,7 @@ def runModel(modelName,dataloader,fname):
                     count+=1
                     loss = criterion(pred,t_accent)
                     lossT+=loss.item()
-                    print('running metrics, loss: ',lossT/count, ' accuracy: ', acc)  
+                    print('running metrics, loss: ',lossT/count, ' accuracy: ', acc,' completed' ,count,'/',len(dataloader))  
                 
                 except Exception as e:
                     #print('Skipping category', t_accent)
@@ -125,7 +125,8 @@ if __name__ == "__main__":
         Dataset = Data.VoiceData(Path_Wav,Path_Meta+'test.tsv')
         Dataloader = DataLoader(Dataset,batch_size=2,shuffle=True, num_workers=0,collate_fn=Data.collate_fn)    
     
-    #loss,acc = runModel(modelName='AccentModel_LSTM_best.pt', dataloader = Dataloader, fname='DNNLayer_data.csv')
-    cluster_data = Clustering(data='DNNLayer_data_'+dataset+'.csv',k = 3)
+    loss,acc = runModel(modelName='AccentModel_LSTM_best.pt', dataloader = Dataloader, fname='DNNLayer_data_'+dataset+'.csv')
+    print('final loss ', loss, ' final accuracy', acc)
+    cluster_data = Clustering(data='DNNLayer_data_'+dataset+'.csv',k = 17)
     cluster_data.to_csv('Cluster_DNNLayer_data_'+dataset+'.csv')
     print('........ final csv printed')

@@ -117,7 +117,7 @@ if __name__ == "__main__":
     
     if dataset == 'train':
         Dataset = Data.VoiceData(Path_Wav,Path_Meta+'train.tsv')
-        Dataloader = DataLoader(Dataset,batch_size=2,shuffle=True, num_workers=0,collate_fn=Data.collate_fn)    
+        Dataloader = DataLoader(Dataset,batch_size=30,shuffle=True, num_workers=6,collate_fn=Data.collate_fn)    
     elif dataset == 'validation':
         Dataset = Data.VoiceData(Path_Wav,Path_Meta+'dev.tsv')
         Dataloader = DataLoader(Dataset,batch_size=30,shuffle=True, num_workers=6,collate_fn=Data.collate_fn) 

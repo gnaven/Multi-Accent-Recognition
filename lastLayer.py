@@ -16,7 +16,11 @@ import traceback
 import warnings
 warnings.filterwarnings("ignore")
 
+from sklearn import cluster
 
+from sklearn.preprocessing import normalize
+
+import pandas as pd
 def createDataset(fname,data,label,writer):
     
     for i in range(data.shape[0]):
@@ -49,7 +53,8 @@ def runModel(modelName,dataloader,fname):
     with torch.no_grad():
         with open(fname,mode ='w') as csv_file:
             writer = csv.writer(csv_file,delimiter= ',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            
+            feat_names = ['feat'+str(i) for i in range(200)] + ['Accent']
+            writer.writerow(feat_names)                  
             for sample in dataloader:
                 try:
                     wavX, t_accent = sample
@@ -84,12 +89,26 @@ def runModel(modelName,dataloader,fname):
       
     return (lossT/count), acc
 
+def Clustering(data,k=17):
+    df = pd.read_csv(data)
+    X = df.drop(['Accent'],axis=1)
+    X = normalize(X)
+    k_means = cluster.KMeans(n_clusters=k, max_iter=1000, n_jobs=-1)
+    y = k_means.fit(X)
+    
+    df['Cluster'] = y.labels_
+    print('summary stats....')
+    print('label proportion ', df['Accent'].value_counts(normalize=True)*100)
+    print('cluster proportion ', df['Cluster'].value_counts(normalize=True)*100)
+    
+    return df
+
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Accent Model arguments')
     parser.add_argument("--clippath", type=str, default = 'data/clips/')
     parser.add_argument("--meta", type=str, default = 'data/')
-    parser.add_argument("--dataset", type=str, default = 'train')    
+    parser.add_argument("--dataset", type=str, default = 'test')    
 
     args = parser.parse_args()
     Path_Wav = args.clippath
@@ -106,4 +125,7 @@ if __name__ == "__main__":
         Dataset = Data.VoiceData(Path_Wav,Path_Meta+'test.tsv')
         Dataloader = DataLoader(Dataset,batch_size=2,shuffle=True, num_workers=0,collate_fn=Data.collate_fn)    
     
-    loss,acc = runModel(modelName='AccentModel_LSTM_best.pt', dataloader = Dataloader, fname='DNNLayer_data.csv')
+    #loss,acc = runModel(modelName='AccentModel_LSTM_best.pt', dataloader = Dataloader, fname='DNNLayer_data.csv')
+    cluster_data = Clustering(data='DNNLayer_data_'+dataset+'.csv',k = 3)
+    cluster_data.to_csv('Cluster_DNNLayer_data_'+dataset+'.csv')
+    print('........ final csv printed')

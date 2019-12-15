@@ -1,5 +1,6 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
 import LSTMmodel as network
+import AttentionModel as attention
 import os
 import numpy as np
 import Data
@@ -36,6 +37,11 @@ def runModel(modelName,dataloader,fname):
     model = network.AccentModel(blockSize=201,input_dim = 201, hidden_dim=100, batch_size=8, output_dim=17, num_layers=4)
     model= nn.DataParallel(model)    
     
+    # uncomment to run for attention models
+    """
+    model = attention.AccentModel(blockSize=201,input_dim = 201, hidden_dim=100, batch_size=8, output_dim=17, num_layers=4)
+    model= nn.DataParallel(model)      
+    """
     if os.path.isfile(modelName):
         print('..... loading model')
         checkpoint = torch.load(modelName,map_location=torch.device(device))

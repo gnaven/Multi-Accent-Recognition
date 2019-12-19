@@ -31,4 +31,4 @@ ClusterPlot.ipnyb: notebook to analyze data from the last layer of the model
 
 ### The architecture of the Attention Model is as shown below:
 
-! [Attention LSTM](https://github.com/gnaven/Multi-Accent-Recognition/blob/master/figs/Attmodel.png)
+![Attention LSTM](https://github.com/gnaven/Multi-Accent-Recognition/blob/master/figs/Attmodel.png)

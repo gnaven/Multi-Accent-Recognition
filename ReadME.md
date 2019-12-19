@@ -29,6 +29,6 @@ lastLayer.py: Loads the trained model and runs it through the desired
 ClusterPlot.ipnyb: notebook to analyze data from the last layer of the model
 	and the clusters formed. 
 
-### The architecture of the Attenstion Model is as shown below:
+### The architecture of the Attention Model is as shown below:
 
-! [Attention LSTM] (https://github.com/gnaven/Multi-Accent-Recognition/blob/master/figs/Attmodel.png)
+! [Attention LSTM](https://github.com/gnaven/Multi-Accent-Recognition/blob/master/figs/Attmodel.png)
